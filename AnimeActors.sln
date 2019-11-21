@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeActors.Android", "AnimeActors\AnimeActors.Android\AnimeActors.Android.csproj", "{D831E9F9-0FB0-4AA4-A49F-6224F338B407}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeActors", "AnimeActors\AnimeActors\AnimeActors.csproj", "{30D55716-2D26-4FDF-BCF4-EDE434BDC03F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeActors", "AnimeActors\AnimeActors\AnimeActors.csproj", "{30D55716-2D26-4FDF-BCF4-EDE434BDC03F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
