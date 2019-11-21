@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<xamForms:ReactiveContentPage x:TypeArguments="viewModels:ItemsViewModel" xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:xamForms="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
+             xmlns:viewModels="clr-namespace:AnimeActors.ViewModels;assembly=AnimeActors"
+             mc:Ignorable="d"
+             x:Class="AnimeActors.Views.HomePage"
+             Title="{Binding Title}">
+
+    <StackLayout Spacing="0">
+
+        <Button Text="Search by character" d:Routing.Route="characters" Style="{StaticResource PageButton}"></Button>
+
+        </StackLayout>
+
+</xamForms:ReactiveContentPage>
