@@ -6,7 +6,19 @@
              mc:Ignorable="d"
              x:Class="AnimeActors.App">
     <Application.Resources>
-        <ResourceDictionary Source="Resources/DarkTheme.xaml" />
+        <ResourceDictionary Source="Resources/DarkTheme.xaml">
+            <Style x:Key="PageButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#141414" />
+                <Setter Property="BorderRadius" Value="5" />
+                <Setter Property="TextColor" Value="Red" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="BorderColor" Value="#000" />
+                <Setter Property="BorderWidth" Value="1" />
+                <!--<Setter Property="HeightRequest" Value="40" />-->
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
+            </Style>
+        </ResourceDictionary>
         <StyleSheet Source="Resources/style.css"></StyleSheet>
     </Application.Resources>
 </Application>

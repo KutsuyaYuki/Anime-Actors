@@ -11,7 +11,8 @@
 
     <StackLayout Spacing="0">
 
-        <Button Text="Search by character" d:Routing.Route="characters" Style="{StaticResource PageButton}"></Button>
+        <Button Text="Search by character" d:Routing.Route="characters" Style="{StaticResource PageButton}" Clicked="OnCharacterButtonClicked"></Button>
+        <Button Text="Search by voice actor" d:Routing.Route="characters" Style="{StaticResource PageButton}" ></Button>
 
         </StackLayout>
 

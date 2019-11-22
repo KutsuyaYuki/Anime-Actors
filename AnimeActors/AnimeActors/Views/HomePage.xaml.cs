@@ -15,6 +15,12 @@ namespace AnimeActors.Views
         public HomePage()
         {
             InitializeComponent();
+            Routing.RegisterRoute("characters", typeof(ItemsPage));
+        }
+
+        private async void OnCharacterButtonClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("characters");
         }
     }
 }
