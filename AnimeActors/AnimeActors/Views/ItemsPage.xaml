@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:xamForms="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
              xmlns:viewModels="clr-namespace:AnimeActors.ViewModels;assembly=AnimeActors"
+             xmlns:models="clr-namespace:AnimeActors.Models;assembly=AnimeActors"
              mc:Ignorable="d"
              x:Class="AnimeActors.Views.ItemsPage"
              Title="{Binding Title}"
@@ -20,7 +21,7 @@
                 RefreshCommand="{Binding LoadItemsCommand}"
                 IsRefreshing="{Binding IsBusy, Mode=OneWay}">
             <ListView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="{x:Type models:Item}">
                     <ViewCell>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -33,7 +34,10 @@
                                 <Label Text="{Binding Text}" 
                                     LineBreakMode="NoWrap" 
                                     FontSize="16" />
-                                <Label Text="{Binding Description}" 
+                                <Label Text="{Binding CharacterName, StringFormat='Character: {0}'}" 
+                                    LineBreakMode="NoWrap"
+                                    FontSize="13" />
+                                <Label Text="{Binding VoiceActor, StringFormat='Voice Actor: {0}'}" 
                                     LineBreakMode="NoWrap"
                                     FontSize="13" />
                             </StackLayout>

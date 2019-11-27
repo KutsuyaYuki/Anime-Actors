@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -18,6 +20,8 @@ namespace AnimeActors.ViewModels
 {
     public class ItemsViewModel : ReactiveObject, IActivatableViewModel
     {
+        public const string emptyImage =
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
         public string Title => "Anime Actors";
         public bool IsBusy { get; set; }
         public string SearchText { get; set; }
@@ -33,24 +37,24 @@ namespace AnimeActors.ViewModels
             _cache = new SourceCache<Edge, int>(actor => actor.id);
             _cache
                 .Connect()
-                .TransformMany(c =>
-                    c.voiceActors
-                        .SelectMany(h => h.characters.nodes)
-                        .SelectMany(j =>
-                            j.media.edges.Select(h => { 
-                                var item = new Item
-                                {
-                                    Text = h.node.title.userPreferred,
-                                    Description = j.name.full,
-                                    Id = h.node.title.userPreferred+j.name.full,
-                                    Image = ImageSource.FromUri(new Uri(j.image?.large ?? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="))
-                                };
-
-                                return item;
+                .TransformMany(mediaEdges => mediaEdges.voiceActors
+                    .SelectMany(voiceActor => voiceActor.characters.nodes
+                        .SelectMany(character => character.media.edges
+                            .Select(characterMedia => new Item
+                            {
+                                VoiceActor = voiceActor.name.full,
+                                Text = characterMedia.node.title.userPreferred,
+                                CharacterName = character.name.full,
+                                Id = characterMedia.node.title.userPreferred + character.name.full,
+                                Image = ImageSource.FromUri(new Uri(character.image?.large ?? emptyImage))
                             })
-                    ), c => c.Id)
+                        )
+                    )
+
+                    , c => c.CharacterName)
                 .Bind(Items)
                 .Subscribe();
+
 
             Activator = new ViewModelActivator();
             SearchCommand = ReactiveCommand.CreateFromTask(() => ExecuteLoadItemsCommand(SearchText));

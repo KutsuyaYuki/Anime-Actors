@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using AnimeActors.ViewModels;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -12,10 +13,13 @@ namespace AnimeActors.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class HomePage
     {
+        HomePageModel viewModel;
+
         public HomePage()
         {
             InitializeComponent();
-            Routing.RegisterRoute("characters", typeof(ItemsPage));
+
+            BindingContext = viewModel = new HomePageModel();
         }
 
         private async void OnCharacterButtonClicked(object sender, EventArgs e)

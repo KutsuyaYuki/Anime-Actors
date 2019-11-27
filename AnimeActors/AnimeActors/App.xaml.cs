@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using AnimeActors.Services;
 using AnimeActors.Views;
+using Xamarin.Essentials;
 
 namespace AnimeActors
 {
@@ -20,6 +21,7 @@ namespace AnimeActors
         protected override void OnStart()
         {
             // Handle when your app starts
+            VersionTracking.Track();
         }
 
         protected override void OnSleep()

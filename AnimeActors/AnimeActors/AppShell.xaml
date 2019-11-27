@@ -26,6 +26,7 @@
                 <Setter Property="Shell.TabBarUnselectedColor" Value="#95FFFFFF"/>
                 <Setter Property="Shell.TabBarTitleColor" Value="Red"/>
                 <Setter Property="Shell.SearchHandler" Value="Red"/>
+                <Setter Property="Shell.BackButtonBehavior" Value="Red"/>
             </Style>
             <Style TargetType="SearchBar" BasedOn="{StaticResource BaseStyle}">
                 <Setter Property="BackgroundColor" Value="#1D1D1D"></Setter>
