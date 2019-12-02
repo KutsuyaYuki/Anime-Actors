@@ -4,6 +4,15 @@ using System.Text;
 
 namespace AnimeActors.Models
 {
+    public class PageInfo
+    {
+        public int total { get; set; }
+        public int currentPage { get; set; }
+        public int lastPage { get; set; }
+        public bool hasNextPage { get; set; }
+        public int perPage { get; set; }
+    }
+
     public class CharacterName
     {
         public string first { get; set; }
@@ -48,9 +57,15 @@ namespace AnimeActors.Models
         public Media media { get; set; }
     }
 
-    public class VoiceActors
+    public class Data
     {
-        public Character Character { get; set; }
+        public Page page { get; set; }
+    }
+
+    public class Page
+    {
+        public PageInfo pageInfo { get; set; }
+        public List<Character> characters { get; set; }
     }
 
     public class AnimeName

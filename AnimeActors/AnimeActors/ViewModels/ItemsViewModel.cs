@@ -71,7 +71,7 @@ namespace AnimeActors.ViewModels
             {
                 var items = await _anilistService.GetVoiceActorByCharacter(characterName);
                 _cache.Clear();
-                _cache.AddOrUpdate(items.Character.media.edges);
+                _cache.AddOrUpdate(items);
             }
             catch (Exception ex)
             {

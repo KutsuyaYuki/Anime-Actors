@@ -8,6 +8,7 @@ using GraphQL.Client;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 using RestSharp;
 using RestSharp.Serialization.Json;
 using Xamarin.Essentials;
@@ -46,54 +47,62 @@ namespace AnimeActors.Services
         //    }
         //}
 
-        public async Task<VoiceActors> GetVoiceActorByCharacter(string character)
+        public async Task<List<Edge>> GetVoiceActorByCharacter(string character)
         {
             var graphQLHttpRequest = new GraphQLRequest
             {
-                Query = @"
-					    {
-                          Character(search: """ + character + @""") {
-                            name {
-                              first
-                              last
-                              full
-                              native
+                Query = @"query Characters($page: Int, $character: String) {
+                          Page(page: $page, perPage: 50) {
+                            pageInfo {
+                              total
+                              currentPage
+                              lastPage
+                              hasNextPage
+                              perPage
                             }
-                            image {
-                              large
-                            }
-                            media(type: ANIME) {
-                              edges {
-                                node {
-                                  type
-                                  title {
-                                    userPreferred
+                            characters(search: $character) {
+                              name {
+                                first
+                                last
+                                full
+                                native
+                              }
+                              image {
+                                large
+                              }
+                              media(type: ANIME) {
+                                edges {
+                                  node {
+                                    type
+                                    title {
+                                      userPreferred
+                                    }
                                   }
-                                }
-                                id
-                                characterRole
-                                voiceActors(language: JAPANESE) {
-                                  name {
-                                    full
-                                  }
-                                  image {
-                                    large
-                                  }
-                                  language
-                                  characters {
-                                    nodes{
-                                      name {
-                                        full
-                                      }
-                                      image {
-                                        large
-                                      }
-                                      media {
-                                        edges {
-                                          node {
-                                            type
-                                            title {
-                                              userPreferred
+                                  id
+                                  characterRole
+                                  voiceActors(language: JAPANESE) {
+                                    name {
+                                      full
+                                    }
+                                    image {
+                                      large
+                                    }
+                                    language
+                                    characters {
+                                      nodes {
+                                        name {
+                                          full
+                                        }
+                                        image {
+                                          large
+                                        }
+                                        media {
+                                          edges {
+                                            node {
+                                              type
+                                              title {
+                                                userPreferred
+                                              }
                                             }
                                           }
                                         }
@@ -105,14 +114,30 @@ namespace AnimeActors.Services
                             }
                           }
                         }
-                    "
+
+                    ", OperationName = "Characters"
             };
-            var graphQLHttpResponse = await _graphqlClient.SendQueryAsync(graphQLHttpRequest);
+            bool hasNextPage = true;
 
-            var Q = graphQLHttpResponse.Data as JObject;
-            var result = Q.ToObject<VoiceActors>();
+            List<Page> voiceActorsResult = new List<Page>();
 
-            return result;
+            int pagenum = 1;
+
+            while (hasNextPage)
+            {
+                graphQLHttpRequest.Variables = new { page = pagenum, character = character };
+                var graphQLHttpResponse = await _graphqlClient.SendQueryAsync(graphQLHttpRequest);
+
+                var Q = graphQLHttpResponse.Data as JObject;
+                var result = Q.ToObject<Data>();
+
+                voiceActorsResult.Add(result.page);
+                hasNextPage = result.page.pageInfo.hasNextPage;
+
+                pagenum++;
+            }
+                
+            return voiceActorsResult.SelectMany(voiceActor => voiceActor.characters.SelectMany(chara => chara.media.edges)).ToList();
         }
     }
 }
