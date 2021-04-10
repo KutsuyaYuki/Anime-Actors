@@ -15,6 +15,8 @@ using DynamicData;
 using DynamicData.Alias;
 using DynamicData.Binding;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+using System.Collections.Generic;
 
 namespace AnimeActors.ViewModels
 {
@@ -23,10 +25,15 @@ namespace AnimeActors.ViewModels
         public const string emptyImage =
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
         public string Title => "Anime Actors";
+        [Reactive]
         public bool IsBusy { get; set; }
         public string SearchText { get; set; }
+        [Reactive]
+        public int ResultsAmount { get; set; }
+        
+
         public ICommand SearchCommand { get; set; }
-        private SourceCache<Edge, int> _cache;
+        private SourceCache<OriginItem, int> _cache;
         public IObservableCollection<Item> Items { get; set; }
 
         private readonly AnilistService _anilistService = new AnilistService();
@@ -34,26 +41,23 @@ namespace AnimeActors.ViewModels
         public ItemsViewModel()
         {
             Items = new ObservableCollectionExtended<Item>();
-            _cache = new SourceCache<Edge, int>(actor => actor.id);
+            _cache = new SourceCache<OriginItem, int>(actor => actor.Id);
             _cache
-                .Connect()
-                .TransformMany(mediaEdges => mediaEdges.voiceActors
-                    .SelectMany(voiceActor => voiceActor.characters.nodes
-                        .SelectMany(character => character.media.edges
-                            .Select(characterMedia => new Item
-                            {
-                                VoiceActor = voiceActor.name.full,
-                                Text = characterMedia.node.title.userPreferred,
-                                CharacterName = character.name.full,
-                                Id = characterMedia.node.title.userPreferred + character.name.full,
-                                Image = ImageSource.FromUri(new Uri(character.image?.large ?? emptyImage))
-                            })
-                        )
-                    )
-
-                    , c => c.CharacterName)
-                .Bind(Items)
-                .Subscribe();
+              .Connect()
+              .Select(oi => new Item
+                          {
+                              VoiceActor = oi.VoiceActor.name.full,
+                              Text = oi.Anime.title.userPreferred,
+                              CharacterName = oi.Character.name.full,
+                              Id = oi.Id.ToString(),
+                              Image = ImageSource.FromUri(new Uri(oi.Character.image?.large ?? emptyImage))
+                          })
+              .Sort(SortExpressionComparer<Item>.Ascending(i => i.Text))
+              .Bind(Items)
+              .Subscribe((a) =>
+                {
+                    ResultsAmount = Items.Count();
+                });
 
 
             Activator = new ViewModelActivator();
@@ -71,7 +75,18 @@ namespace AnimeActors.ViewModels
             {
                 var items = await _anilistService.GetVoiceActorByCharacter(characterName);
                 _cache.Clear();
-                _cache.AddOrUpdate(items);
+                var c = items.SelectMany(a => a.voiceActors
+                    .SelectMany(voiceActor => voiceActor.characters.nodes
+                      .SelectMany(character => character.media.edges
+                          .Select(characterMedia => new OriginItem(
+                            character.id,
+                            voiceActor,
+                            characterMedia.node,
+                            character
+                          ))
+                      )
+                  ));
+                _cache.AddOrUpdate(c);
             }
             catch (Exception ex)
             {
@@ -84,5 +99,21 @@ namespace AnimeActors.ViewModels
         }
 
         public ViewModelActivator Activator { get; }
+    }
+
+    internal class OriginItem
+    {
+        public int Id { get; }
+        public VoiceActor VoiceActor { get; }
+        public AnimeNode Anime { get; }
+        public VoiceActorNode Character { get; }
+
+        public OriginItem(int id, VoiceActor voiceActor, AnimeNode anime, VoiceActorNode character)
+        {
+            Id = id;
+            VoiceActor = voiceActor;
+            Anime = anime;
+            Character = character;
+        }
     }
 }

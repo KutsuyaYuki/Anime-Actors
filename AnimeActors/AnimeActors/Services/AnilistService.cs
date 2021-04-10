@@ -4,14 +4,13 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AnimeActors.Models;
-using GraphQL.Client;
 using GraphQL.Client.Http;
-using GraphQL.Common.Request;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 using RestSharp;
 using RestSharp.Serialization.Json;
 using Xamarin.Essentials;
+using GraphQL;
 
 namespace AnimeActors.Services
 {
@@ -51,7 +50,7 @@ namespace AnimeActors.Services
         {
             var graphQLHttpRequest = new GraphQLRequest
             {
-                Query = @"query Characters($page: Int, $character: String) {
+                Query = @"query Characters($page: Int, $character: String, $characterPage: Int = 1) {
                           Page(page: $page, perPage: 50) {
                             pageInfo {
                               total
@@ -88,8 +87,16 @@ namespace AnimeActors.Services
                                       large
                                     }
                                     language
-                                    characters {
+                                    characters(page: $characterPage, perPage: 25) {
+                                      pageInfo {
+                                        total
+                                        currentPage
+                                        lastPage
+                                        hasNextPage
+                                        perPage
+                                      }
                                       nodes {
+                                        id
                                         name {
                                           full
                                         }
@@ -126,18 +133,39 @@ namespace AnimeActors.Services
             while (hasNextPage)
             {
                 graphQLHttpRequest.Variables = new { page = pagenum, character = character };
-                var graphQLHttpResponse = await _graphqlClient.SendQueryAsync(graphQLHttpRequest);
+                var graphQLHttpResponse = await _graphqlClient.SendQueryAsync<Data>(graphQLHttpRequest);
 
-                var Q = graphQLHttpResponse.Data as JObject;
-                var result = Q.ToObject<Data>();
+                var result = graphQLHttpResponse.Data;
 
                 voiceActorsResult.Add(result.page);
                 hasNextPage = result.page.pageInfo.hasNextPage;
 
+
+                bool hasCharacterPage = true;
+
+                int characterPagenum = 1;
+
+                while (hasCharacterPage)
+                {
+                    graphQLHttpRequest.Variables = new { page = pagenum, character = character, characterPage = characterPagenum };
+                    var characterGraphQLHttpResponse = await _graphqlClient.SendQueryAsync<Data>(graphQLHttpRequest);
+
+                    var characterResult = characterGraphQLHttpResponse.Data;
+
+                    voiceActorsResult.Add(characterResult.page);
+                    hasCharacterPage = characterResult.page.characters.Any(
+                        chara => chara.media.edges.Any(
+                        page => page.voiceActors.Any(
+                            va => va.characters.pageInfo.hasNextPage)
+                        ));
+
+                    characterPagenum++;
+                }
                 pagenum++;
             }
-                
-            return voiceActorsResult.SelectMany(voiceActor => voiceActor.characters.SelectMany(chara => chara.media.edges)).ToList();
+
+            var a = voiceActorsResult.SelectMany(voiceActor => voiceActor.characters.SelectMany(chara => chara.media.edges)).ToList();
+            return a;
         }
     }
 }

@@ -12,7 +12,6 @@
              x:Name="BrowseItemsPage">
 
     <StackLayout Spacing="0">
-
         <SearchBar x:Name="SearchBar" SearchCommand="{Binding SearchCommand}" Text="{Binding SearchText}" BackgroundColor="#151515" TextColor="Red" Placeholder="Search..." PlaceholderColor="Red"></SearchBar>
         <ListView x:Name="ItemsListView"
                 ItemsSource="{Binding Items}" 
@@ -46,6 +45,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Label Text="{Binding ResultsAmount, StringFormat='Results: {0}'}" TextColor="White" HorizontalTextAlignment="Center"/>
     </StackLayout>
 
 </xamForms:ReactiveContentPage>

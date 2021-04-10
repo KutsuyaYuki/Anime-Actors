@@ -92,6 +92,7 @@ namespace AnimeActors.Models
 
     public class VoiceActorNode
     {
+        public int id { get; set; }
         public AnimeName name { get; set; }
         public Image image { get; set; }
         public VoiceActorMedia media { get; set; }
@@ -100,10 +101,12 @@ namespace AnimeActors.Models
     public class Characters
     {
         public List<VoiceActorNode> nodes { get; set; }
+        public PageInfo pageInfo { get; set; }
     }
 
     public class VoiceActor
     {
+        public int id { get; set; }
         public AnimeName name { get; set; }
         public Image image { get; set; }
         public string language { get; set; }
