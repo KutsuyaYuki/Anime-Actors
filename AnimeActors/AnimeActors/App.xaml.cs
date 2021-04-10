@@ -14,7 +14,6 @@ namespace AnimeActors
         {
             InitializeComponent();
 
-            DependencyService.Register<MockDataStore>();
             MainPage = new AppShell();
         }
 

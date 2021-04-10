@@ -5,23 +5,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:xamForms="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
              xmlns:viewModels="clr-namespace:AnimeActors.ViewModels;assembly=AnimeActors"
-             xmlns:models="clr-namespace:AnimeActors.Models;assembly=AnimeActors"
-             mc:Ignorable="d"
+             xmlns:models="clr-namespace:AnimeActors.Models;assembly=AnimeActors" xmlns:helpers="clr-namespace:AnimeActors.Helpers"
+                              mc:Ignorable="d"
              x:Class="AnimeActors.Views.ItemsPage"
              Title="{Binding Title}"
              x:Name="BrowseItemsPage">
-
-    <StackLayout Spacing="0">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <helpers:InverseBoolConverter x:Key="InverseBoolConverter" x:Name="InverseBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <StackLayout Spacing="0" VerticalOptions="FillAndExpand">
         <SearchBar x:Name="SearchBar" SearchCommand="{Binding SearchCommand}" Text="{Binding SearchText}" BackgroundColor="#151515" TextColor="Red" Placeholder="Search..." PlaceholderColor="Red"></SearchBar>
-        <ListView x:Name="ItemsListView"
-                ItemsSource="{Binding Items}" 
-                VerticalOptions="FillAndExpand"
-                RowHeight="120"
-                RefreshCommand="{Binding LoadItemsCommand}"
-                IsRefreshing="{Binding IsBusy, Mode=OneWay}">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="{x:Type models:Item}">
-                    <ViewCell>
+        <Grid VerticalOptions="FillAndExpand">
+            <CollectionView x:Name="ItemsListView"
+                    ItemsSource="{Binding Items}" 
+                    VerticalOptions="FillAndExpand"
+                            IsVisible="{Binding IsBusy, Converter={x:StaticResource InverseBoolConverter}}" >
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="{x:Type models:CharacterItem}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"></ColumnDefinition>
@@ -29,23 +31,31 @@
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" Source="{Binding Image}"></Image>
                             <StackLayout Grid.Column="1"  Padding="10"
-                                     StyleClass="ItemsListView">
+                                         StyleClass="ItemsListView">
                                 <Label Text="{Binding Text}" 
-                                    LineBreakMode="NoWrap" 
-                                    FontSize="16" />
+                                        LineBreakMode="NoWrap" 
+                                        FontSize="16" 
+                                       TextColor="LightGray"
+                                       />
                                 <Label Text="{Binding CharacterName, StringFormat='Character: {0}'}" 
-                                    LineBreakMode="NoWrap"
-                                    FontSize="13" />
+                                        LineBreakMode="NoWrap"
+                                        FontSize="13"
+                                       TextColor="LightGray"/>
                                 <Label Text="{Binding VoiceActor, StringFormat='Voice Actor: {0}'}" 
-                                    LineBreakMode="NoWrap"
-                                    FontSize="13" />
+                                        LineBreakMode="NoWrap"
+                                        FontSize="13"
+                                       TextColor="LightGray"/>
                             </StackLayout>
                         </Grid>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <Label Text="{Binding ResultsAmount, StringFormat='Results: {0}'}" TextColor="White" HorizontalTextAlignment="Center"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <StackLayout IsVisible="{Binding IsBusy}" VerticalOptions="Center">
+                <Image Source="loading.gif" IsAnimationPlaying="True" Aspect="AspectFit" HeightRequest="300"></Image>
+
+            </StackLayout>
+        </Grid>
+        <Label Text="{Binding ResultsAmount, StringFormat='Results: {0}'}" TextColor="White" HorizontalTextAlignment="Center" VerticalOptions="End"/>
     </StackLayout>
 
 </xamForms:ReactiveContentPage>

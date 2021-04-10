@@ -34,25 +34,25 @@ namespace AnimeActors.ViewModels
 
         public ICommand SearchCommand { get; set; }
         private SourceCache<OriginItem, int> _cache;
-        public IObservableCollection<Item> Items { get; set; }
+        public IObservableCollection<CharacterItem> Items { get; set; }
 
         private readonly AnilistService _anilistService = new AnilistService();
 
         public ItemsViewModel()
         {
-            Items = new ObservableCollectionExtended<Item>();
+            Items = new ObservableCollectionExtended<CharacterItem>();
             _cache = new SourceCache<OriginItem, int>(actor => actor.Id);
             _cache
               .Connect()
-              .Select(oi => new Item
-                          {
+              .Select(oi => new CharacterItem
+              {
                               VoiceActor = oi.VoiceActor.name.full,
                               Text = oi.Anime.title.userPreferred,
                               CharacterName = oi.Character.name.full,
                               Id = oi.Id.ToString(),
                               Image = ImageSource.FromUri(new Uri(oi.Character.image?.large ?? emptyImage))
                           })
-              .Sort(SortExpressionComparer<Item>.Ascending(i => i.Text))
+              .Sort(SortExpressionComparer<CharacterItem>.Ascending(i => i.Text))
               .Bind(Items)
               .Subscribe((a) =>
                 {

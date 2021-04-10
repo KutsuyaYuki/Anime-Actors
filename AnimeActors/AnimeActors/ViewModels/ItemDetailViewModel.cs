@@ -6,8 +6,8 @@ namespace AnimeActors.ViewModels
 {
     public class ItemDetailViewModel : BaseViewModel
     {
-        public Item Item { get; set; }
-        public ItemDetailViewModel(Item item = null)
+        public CharacterItem Item { get; set; }
+        public ItemDetailViewModel(CharacterItem item = null)
         {
             Title = item?.Text;
             Item = item;
