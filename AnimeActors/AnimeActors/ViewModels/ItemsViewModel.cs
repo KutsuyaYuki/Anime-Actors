@@ -73,28 +73,27 @@ namespace AnimeActors.ViewModels
 
             try
             {
-                var items = await _anilistService.GetVoiceActorByCharacter(characterName);
                 _cache.Clear();
-                var c = items.SelectMany(a => a.voiceActors
-                    .SelectMany(voiceActor => voiceActor.characters.nodes
-                      .SelectMany(character => character.media.edges
-                          .Select(characterMedia => new OriginItem(
-                            character.id,
-                            voiceActor,
-                            characterMedia.node,
-                            character
-                          ))
-                      )
-                  ));
-                _cache.AddOrUpdate(c);
+                await foreach (var item in _anilistService.GetVoiceActorByCharacter(characterName))
+                {
+                    var c = (await item).SelectMany(a => a.voiceActors
+                        .SelectMany(voiceActor => voiceActor.characters.nodes
+                          .SelectMany(character => character.media.edges
+                              .Select(characterMedia => new OriginItem(
+                                character.id,
+                                voiceActor,
+                                characterMedia.node,
+                                character
+                              ))
+                          )
+                      ));
+                    _cache.AddOrUpdate(c);
+                    IsBusy = false;
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-            }
-            finally
-            {
-                IsBusy = false;
             }
         }
 

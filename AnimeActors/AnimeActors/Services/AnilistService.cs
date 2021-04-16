@@ -46,7 +46,7 @@ namespace AnimeActors.Services
         //    }
         //}
 
-        public async Task<List<Edge>> GetVoiceActorByCharacter(string character)
+        public async IAsyncEnumerable<Task<IEnumerable<Edge>>> GetVoiceActorByCharacter(string character)
         {
             var graphQLHttpRequest = new GraphQLRequest
             {
@@ -140,32 +140,35 @@ namespace AnimeActors.Services
                 voiceActorsResult.Add(result.page);
                 hasNextPage = result.page.pageInfo.hasNextPage;
 
-
                 bool hasCharacterPage = true;
 
                 int characterPagenum = 1;
 
                 while (hasCharacterPage)
                 {
-                    graphQLHttpRequest.Variables = new { page = pagenum, character = character, characterPage = characterPagenum };
-                    var characterGraphQLHttpResponse = await _graphqlClient.SendQueryAsync<Data>(graphQLHttpRequest);
+                    var t = GetCharacterPage(character, graphQLHttpRequest, pagenum, characterPagenum);
 
-                    var characterResult = characterGraphQLHttpResponse.Data;
-
-                    voiceActorsResult.Add(characterResult.page);
-                    hasCharacterPage = characterResult.page.characters.Any(
-                        chara => chara.media.edges.Any(
-                        page => page.voiceActors.Any(
-                            va => va.characters.pageInfo.hasNextPage)
-                        ));
+                    yield return t;
+                    hasCharacterPage = (await t).Any(
+                    page => page.voiceActors.Any(
+                    va => va.characters.pageInfo.hasNextPage)
+                );
 
                     characterPagenum++;
                 }
                 pagenum++;
             }
+        }
 
-            var a = voiceActorsResult.SelectMany(voiceActor => voiceActor.characters.SelectMany(chara => chara.media.edges)).ToList();
-            return a;
+        private async Task<IEnumerable<Edge>> GetCharacterPage(string character, GraphQLRequest graphQLHttpRequest, int pagenum, int characterPagenum)
+        {
+            graphQLHttpRequest.Variables = new { page = pagenum, character = character, characterPage = characterPagenum };
+            var characterGraphQLHttpResponse = await _graphqlClient.SendQueryAsync<Data>(graphQLHttpRequest);
+
+            var characterResult = characterGraphQLHttpResponse.Data;
+
+            
+            return characterResult.page.characters.SelectMany(character => character.media.edges);
         }
     }
 }
