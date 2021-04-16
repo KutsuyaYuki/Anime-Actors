@@ -10,6 +10,8 @@ using Xamarin.Forms.Xaml;
 using AnimeActors.Models;
 using AnimeActors.Views;
 using AnimeActors.ViewModels;
+using DynamicData.Binding;
+using System.Reactive.Linq;
 
 namespace AnimeActors.Views
 {
@@ -25,6 +27,11 @@ namespace AnimeActors.Views
             InitializeComponent();
 
             BindingContext = viewModel = new ItemsViewModel();
+
+            viewModel
+                .WhenPropertyChanged(c => c.itemToScrollTo)
+                .Where(c => c != null)
+                .Subscribe(c => Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() => ItemsListView?.ScrollTo(c.Value, animate: false, position: ScrollToPosition.Start)));
         }
     }
 }

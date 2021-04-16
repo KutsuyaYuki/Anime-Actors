@@ -21,6 +21,7 @@
             <CollectionView x:Name="ItemsListView"
                     ItemsSource="{Binding Items}" 
                     VerticalOptions="FillAndExpand"
+                            Margin="0, 0, 20, 0"
                             IsVisible="{Binding IsBusy, Converter={x:StaticResource InverseBoolConverter}}" >
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="{x:Type models:CharacterItem}">
@@ -55,6 +56,15 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <StackLayout BindableLayout.ItemsSource="{Binding jumpLetterList}" HorizontalOptions="End">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding .}" TextColor="White">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding jumpLetterTapCommand, Source={RelativeSource AncestorType={x:Type viewModels:ItemsViewModel}}}" CommandParameter="{Binding .}"></TapGestureRecognizer>
+                            </Label.GestureRecognizers></Label>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate></StackLayout>
             <StackLayout IsVisible="{Binding IsBusy}" VerticalOptions="Center">
                 <Image Source="loading.gif" IsAnimationPlaying="True" Aspect="AspectFit" HeightRequest="300"></Image>
 

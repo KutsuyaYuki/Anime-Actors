@@ -17,6 +17,7 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
+using System.Reactive;
 
 namespace AnimeActors.ViewModels
 {
@@ -30,8 +31,13 @@ namespace AnimeActors.ViewModels
         public string SearchText { get; set; }
         [Reactive]
         public int ResultsAmount { get; set; }
-        
+        [Reactive]
+        public CharacterItem itemToScrollTo { get; set; }
 
+        [Reactive]
+        public ObservableCollection<char> jumpLetterList { get; set;}
+        [Reactive]
+        public ReactiveCommand<char, Unit> jumpLetterTapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
         private SourceCache<OriginItem, int> _cache;
         public IObservableCollection<CharacterItem> Items { get; set; }
@@ -40,6 +46,9 @@ namespace AnimeActors.ViewModels
 
         public ItemsViewModel()
         {
+            jumpLetterList = new ObservableCollection<char>();
+            jumpLetterList.AddRange("ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray());
+            jumpLetterTapCommand = ReactiveCommand.Create<char>(jumpLetterTapTask);
             Items = new ObservableCollectionExtended<CharacterItem>();
             _cache = new SourceCache<OriginItem, int>(actor => actor.Id);
             _cache
@@ -52,7 +61,7 @@ namespace AnimeActors.ViewModels
                               Id = oi.Id.ToString(),
                               Image = ImageSource.FromUri(new Uri(oi.Character.image?.large ?? emptyImage))
                           })
-              .Sort(SortExpressionComparer<CharacterItem>.Ascending(i => i.Text))
+              .Sort(SortExpressionComparer<CharacterItem>.Ascending(i => i.CharacterName))
               .Bind(Items)
               .Subscribe((a) =>
                 {
@@ -62,6 +71,12 @@ namespace AnimeActors.ViewModels
 
             Activator = new ViewModelActivator();
             SearchCommand = ReactiveCommand.CreateFromTask(() => ExecuteLoadItemsCommand(SearchText));
+        }
+
+        private void jumpLetterTapTask(char arg)
+        {
+            var ltjt = Items.Select(c => c.CharacterName.FirstOrDefault()).Min(i => (Math.Abs(arg - i), i)).i;
+            itemToScrollTo = Items.FirstOrDefault(item => item.CharacterName.StartsWith(ltjt));
         }
 
         async Task ExecuteLoadItemsCommand(string characterName)
