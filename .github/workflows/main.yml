@@ -32,4 +32,4 @@ jobs:
         KEYSTORE_STOREPASS: ${{ secrets.KEYSTORE_BASE64 }}
         KEYSTORE_KEYALIAS: ${{ secrets.KEYSTORE_KEYALIAS }}
         KEYSTORE_KEYPASS: ${{ secrets.KEYSTORE_KEYPASS }}
-      run: msbuild "AnimeActors/AnimeActors.Android/AnimeActors.Android.csproj" /t:AnimeActors_Droid:SignAndroidPackage /p:Configuration=Release;AndroidKeyStore=True;AndroidSigningKeyStore=Yuki.keystore;AndroidSigningStorePass=$KEYSTORE_KEYALIAS;AndroidSigningKeyAlias=$KEYSTORE_KEYALIAS;AndroidSigningKeyPass=$KEYSTORE_KEYPASS 
+      run: msbuild "AnimeActors.sln" /t:AnimeActors_Android:SignAndroidPackage /p:Configuration=Release;AndroidKeyStore=True;AndroidSigningKeyStore=Yuki.keystore;AndroidSigningStorePass=$KEYSTORE_KEYALIAS;AndroidSigningKeyAlias=$KEYSTORE_KEYALIAS;AndroidSigningKeyPass=$KEYSTORE_KEYPASS 
