@@ -20,6 +20,17 @@ jobs:
 
     - name: Install dependencies
       run: nuget restore "AnimeActors.sln"
+      
+    - name: Retrieve the secret and decode it to a file
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      run: |
+        echo $KEYSTORE_BASE64 | base64 --decode > Yuki.keystore
 
     - name: Build
-      run: msbuild "AnimeActors/AnimeActors.Android/AnimeActors.Android.csproj" /t:PackageForAndroid /p:Configuration=Debug
+      env:
+        KEYSTORE_STOREPASS: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_KEYALIAS: ${{ secrets.KEYSTORE_KEYALIAS }}
+        KEYSTORE_KEYPASS: ${{ secrets.KEYSTORE_KEYPASS }}
+      run: msbuild "AnimeActors/AnimeActors.Android/AnimeActors.Android.csproj" /t:PackageForAndroid /p:Configuration=Release;AndroidKeyStore=True;AndroidSigningKeyStore=Yuki.keystore;AndroidSigningStorePass=$KEYSTORE_KEYALIAS;AndroidSigningKeyAlias=$KEYSTORE_KEYALIAS;AndroidSigningKeyPass=$KEYSTORE_KEYPASS /t:SignAndroidPackage 
+
