@@ -36,7 +36,7 @@ jobs:
 
 
     - name: archive
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
         name: apk
         path: AnimeActors/AnimeActors.Android/bin/Release/*.apk 
