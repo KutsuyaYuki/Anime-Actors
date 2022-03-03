@@ -46,7 +46,7 @@ namespace AnimeActors.Services
         //    }
         //}
 
-        public async IAsyncEnumerable<Task<IEnumerable<Edge>>> GetVoiceActorByCharacter(string character)
+        public async IAsyncEnumerable<Task<IEnumerable<Models.VoiceActors.Edge>>> GetVoiceActorByCharacter(string character)
         {
             var graphQLHttpRequest = new GraphQLRequest
             {
@@ -126,14 +126,14 @@ namespace AnimeActors.Services
             };
             bool hasNextPage = true;
 
-            List<Page> voiceActorsResult = new List<Page>();
+            List<Models.VoiceActors.Page> voiceActorsResult = new List<Models.VoiceActors.Page>();
 
             int pagenum = 1;
 
             while (hasNextPage)
             {
                 graphQLHttpRequest.Variables = new { page = pagenum, character = character };
-                var graphQLHttpResponse = await _graphqlClient.SendQueryAsync<Data>(graphQLHttpRequest);
+                var graphQLHttpResponse = await _graphqlClient.SendQueryAsync<Models.VoiceActors.Data>(graphQLHttpRequest);
 
                 var result = graphQLHttpResponse.Data;
 
@@ -160,15 +160,115 @@ namespace AnimeActors.Services
             }
         }
 
-        private async Task<IEnumerable<Edge>> GetCharacterPage(string character, GraphQLRequest graphQLHttpRequest, int pagenum, int characterPagenum)
+
+        public async IAsyncEnumerable<Task<IEnumerable<(Models.Staff.Staff, Models.Staff.Node)>>> GetCharacterByName(string staffName)
+        {
+            var graphQLHttpRequest = new GraphQLRequest
+            {
+                Query = @"query Staff($page: Int, $staffName: String, $characterPage: Int) {
+                            Page(page: $page, perPage: 50) {
+                            pageInfo {
+                                total
+                                currentPage
+                                lastPage
+                                hasNextPage
+                                perPage
+                            }
+                            staff(search: $staffName) {
+                                name {
+                                first
+                                last
+                                full
+                                native
+                                }
+                                image {
+                                large
+                                }
+                                characters(page: $characterPage, perPage: 25){
+                                pageInfo{
+                                    total
+                                    currentPage
+                                    lastPage
+                                    hasNextPage
+                                    perPage
+                                }
+                                nodes {
+                                    name {
+                                    full
+                                    }
+                                    image{
+                                    large
+                                    }
+                                    media {
+                                    nodes{
+                                        id
+                                        title {
+                                        userPreferred
+                                        }
+                                    }
+            
+                                    }
+                                }
+                                }
+                            }
+                            }
+                        }
+                    ",
+                OperationName = "Staff"
+            };
+            bool hasNextPage = true;
+
+            List<Models.Staff.Page> voiceActorsResult = new List<Models.Staff.Page>();
+
+            int pagenum = 1;
+
+            while (hasNextPage)
+            {
+                graphQLHttpRequest.Variables = new { page = pagenum, staffName = staffName, characterPage = 0 };
+                var graphQLHttpResponse = await _graphqlClient.SendQueryAsync<Models.Staff.Data>(graphQLHttpRequest);
+
+                var result = graphQLHttpResponse.Data;
+
+                voiceActorsResult.Add(result.Page);
+                hasNextPage = result.Page.pageInfo.hasNextPage;
+
+                bool hasCharacterPage = true;
+
+                int characterPagenum = 1;
+
+                while (hasCharacterPage)
+                {
+                    var t = GetVACharacter(staffName, graphQLHttpRequest, pagenum, characterPagenum);
+
+                    yield return t;
+                    hasCharacterPage = (await t).Any(
+                    page => page.Item1.characters.pageInfo.hasNextPage);
+
+                    characterPagenum++;
+                }
+                pagenum++;
+            }
+        }
+        private async Task<IEnumerable<Models.VoiceActors.Edge>> GetCharacterPage(string character, GraphQLRequest graphQLHttpRequest, int pagenum, int characterPagenum)
         {
             graphQLHttpRequest.Variables = new { page = pagenum, character = character, characterPage = characterPagenum };
-            var characterGraphQLHttpResponse = await _graphqlClient.SendQueryAsync<Data>(graphQLHttpRequest);
+            var characterGraphQLHttpResponse = await _graphqlClient.SendQueryAsync<Models.VoiceActors.Data>(graphQLHttpRequest);
 
             var characterResult = characterGraphQLHttpResponse.Data;
 
             
             return characterResult.page.characters.SelectMany(character => character.media.edges);
+        }
+
+        private async Task<IEnumerable<(Models.Staff.Staff, Models.Staff.Node)>> GetVACharacter(string character, GraphQLRequest graphQLHttpRequest, int pagenum, int characterPagenum)
+        {
+            graphQLHttpRequest.Variables = new { page = pagenum, staffName = character, characterPage = characterPagenum };
+            var characterGraphQLHttpResponse = await _graphqlClient.SendQueryAsync<Models.Staff.Data>(graphQLHttpRequest);
+
+            var characterResult = characterGraphQLHttpResponse.Data;
+
+
+            return characterResult.Page.staff.SelectMany(character => character.characters.nodes.Select(item => (character, item)));
         }
     }
 }

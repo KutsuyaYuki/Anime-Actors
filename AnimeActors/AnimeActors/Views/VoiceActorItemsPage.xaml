@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<xamForms:ReactiveContentPage x:TypeArguments="viewModels:ItemsViewModel" xmlns="http://xamarin.com/schemas/2014/forms"
+<xamForms:ReactiveContentPage x:TypeArguments="viewModels:VoiceActorItemsViewModel" xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:xamForms="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
              xmlns:viewModels="clr-namespace:AnimeActors.ViewModels;assembly=AnimeActors"
-             xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
              xmlns:models="clr-namespace:AnimeActors.Models;assembly=AnimeActors" 
-             xmlns:helpers="clr-namespace:AnimeActors.Helpers" xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
-                              mc:Ignorable="d"
-             x:Class="AnimeActors.Views.ItemsPage"
+             xmlns:helpers="clr-namespace:AnimeActors.Helpers" 
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             mc:Ignorable="d"
+             x:Class="AnimeActors.Views.VoiceActorItemsPage"
              Title="{Binding Title}"
              x:Name="BrowseItemsPage">
     <ContentPage.Resources>
@@ -22,16 +22,17 @@
         <Grid VerticalOptions="FillAndExpand">
             <helpers:NativeCollectionView x:Name="ItemsListView"
                     ItemsSource="{Binding Items}" 
-                    VerticalOptions="FillAndExpand"
+                    VerticalOptions="Fill"
                     ItemSizingStrategy="MeasureFirstItem"
-                    Margin="0, 0, 20, 0"
+                    Margin="0, 0, 0, 0"
                     IsVisible="{Binding IsBusy, Converter={x:StaticResource InverseBoolConverter}}" >
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="{x:Type models:CharacterItem}">
+                    <DataTemplate x:DataType="{x:Type models:VoiceActorItem}">
                         <Grid Margin="5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"></ColumnDefinition>
                                 <ColumnDefinition Width="8*"></ColumnDefinition>
+                                <ColumnDefinition Width="1*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="80"></RowDefinition>
@@ -40,7 +41,7 @@
                             <ffimageloading:CachedImage Grid.Column="0" DownsampleToViewSize="true" Source="{Binding Image, Mode=OneTime}" />
                             <StackLayout Grid.Column="1"  Padding="10"
                                          StyleClass="ItemsListView">
-                                <Label Text="{Binding Text}" 
+                                <Label Text="{Binding AnimeName}" 
                                         LineBreakMode="NoWrap" 
                                         FontSize="16" 
                                        TextColor="LightGray"
@@ -59,17 +60,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </helpers:NativeCollectionView>
-            <!--<StackLayout BindableLayout.ItemsSource="{Binding jumpLetterList}" HorizontalOptions="End" WidthRequest="30">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding .}" TextColor="White">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding jumpLetterTapCommand, Source={RelativeSource AncestorType={x:Type viewModels:ItemsViewModel}}}" CommandParameter="{Binding .}"></TapGestureRecognizer>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </StackLayout>-->
+            
             <StackLayout IsVisible="{Binding IsBusy}" VerticalOptions="Center">
                 <Image Source="loading.gif" IsAnimationPlaying="True" Aspect="AspectFit" HeightRequest="300"></Image>
 

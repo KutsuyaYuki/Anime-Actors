@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnimeActors.Models
+namespace AnimeActors.Models.VoiceActors
 {
     public class PageInfo
     {

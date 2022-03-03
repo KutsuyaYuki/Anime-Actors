@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<xamForms:ReactiveContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+                    xmlns:xamForms="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:AnimeActors.ViewModels"
+                              x:TypeArguments="viewmodels:SettingsViewModel"
+                              
+             x:Class="AnimeActors.Views.SettingsPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Welcome to Xamarin.Forms!"
+                VerticalOptions="CenterAndExpand" 
+                HorizontalOptions="CenterAndExpand" />
+
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Sort by Anime?"></Label>
+                <Switch x:Name="SortByAnime"></Switch>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</xamForms:ReactiveContentPage>

@@ -19,11 +19,11 @@ using System.Reactive.Disposables;
 
 namespace AnimeActors.ViewModels
 {
-    public class ItemsViewModel : ReactiveObject, IActivatableViewModel
+    public class VoiceActorItemsViewModel : ReactiveObject, IActivatableViewModel
     {
         public const string emptyImage =
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
-        public string Title => "Anime Actors";
+        public string Title => "Voice Actors";
         [Reactive]
         public bool IsBusy { get; set; }
         public string SearchText { get; set; }
@@ -31,23 +31,15 @@ namespace AnimeActors.ViewModels
         public int ResultsAmount { get; set; }
         [Reactive]
         public CharacterItem itemToScrollTo { get; set; }
-
-        [Reactive]
-        public ObservableCollection<char> jumpLetterList { get; set;}
-        [Reactive]
-        public ReactiveCommand<char, Unit> jumpLetterTapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
-        private SourceCache<OriginItem, int> _cache;
-        public IObservableCollection<CharacterItem> Items { get; set; }
+        private SourceCache<VAOriginItem, int> _cache;
+        public IObservableCollection<VoiceActorItem> Items { get; set; }
 
         private readonly AnilistService _anilistService = new AnilistService();
 
-        public ItemsViewModel()
+        public VoiceActorItemsViewModel()
         {
-            jumpLetterList = new ObservableCollection<char>();
-            jumpLetterList.AddRange("ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray());
-            jumpLetterTapCommand = ReactiveCommand.Create<char>(jumpLetterTapTask);
-            Items = new ObservableCollectionExtended<CharacterItem>();
+            Items = new ObservableCollectionExtended<VoiceActorItem>();
 
             Activator = new ViewModelActivator();
 
@@ -55,15 +47,15 @@ namespace AnimeActors.ViewModels
             {
                 var SortByAnime = bool.Parse((await Xamarin.Essentials.SecureStorage.GetAsync("SortByAnime")) ?? "false");
 
-                _cache = new SourceCache<OriginItem, int>(actor => actor.Id);
-                SortExpressionComparer<CharacterItem> CharacterNameComparer = SortExpressionComparer<CharacterItem>.Ascending(i => i.CharacterName);
-                SortExpressionComparer<CharacterItem> AnimeComparer = SortExpressionComparer<CharacterItem>.Ascending(i => i.Text);
+                _cache = new SourceCache<VAOriginItem, int>(actor => actor.Id);
+                SortExpressionComparer<VoiceActorItem> CharacterNameComparer = SortExpressionComparer<VoiceActorItem>.Ascending(i => i.CharacterName);
+                SortExpressionComparer<VoiceActorItem> AnimeComparer = SortExpressionComparer<VoiceActorItem>.Ascending(i => i.AnimeName);
                 _cache
                   .Connect()
-                  .Select(oi => new CharacterItem
+                  .Select(oi => new VoiceActorItem
                   {
                       VoiceActor = oi.VoiceActor.name.full,
-                      Text = oi.Anime.title.userPreferred,
+                      AnimeName = oi.Anime.title.userPreferred,
                       CharacterName = oi.Character.name.full,
                       Id = oi.Id.ToString(),
                       Image = ImageSource.FromUri(new Uri(oi.Character.image?.large ?? emptyImage))
@@ -78,12 +70,6 @@ namespace AnimeActors.ViewModels
             SearchCommand = ReactiveCommand.CreateFromTask(() => ExecuteLoadItemsCommand(SearchText));
         }
 
-        private void jumpLetterTapTask(char arg)
-        {
-            var ltjt = Items.Select(c => c.CharacterName.FirstOrDefault()).Min(i => (Math.Abs(arg - i), i)).i;
-            itemToScrollTo = Items.FirstOrDefault(item => item.CharacterName.StartsWith(ltjt));
-        }
-
         async Task ExecuteLoadItemsCommand(string characterName)
         {
             if (IsBusy)
@@ -94,19 +80,14 @@ namespace AnimeActors.ViewModels
             try
             {
                 _cache.Clear();
-                await foreach (var item in _anilistService.GetVoiceActorByCharacter(characterName))
+                await foreach (var item in _anilistService.GetCharacterByName(characterName))
                 {
-                    var c = (await item).SelectMany(a => a.voiceActors
-                        .SelectMany(voiceActor => voiceActor.characters.nodes
-                          .SelectMany(character => character.media.edges
-                              .Select(characterMedia => new OriginItem(
-                                character.id,
-                                voiceActor,
-                                characterMedia.node,
-                                character
-                              ))
-                          )
-                      ));
+                    var c = (await item).SelectMany(waitedItem =>
+                    {
+                        var staff = waitedItem.Item1;
+
+                        return waitedItem.Item2.media.nodes.Select(node => new VAOriginItem(node.id, staff, node, waitedItem.Item2));
+                    });
                     _cache.AddOrUpdate(c);
                     IsBusy = false;
                 }
@@ -120,18 +101,18 @@ namespace AnimeActors.ViewModels
         public ViewModelActivator Activator { get; }
     }
 
-    internal class OriginItem
+    internal class VAOriginItem
     {
         public int Id { get; }
-        public Models.VoiceActors.VoiceActor VoiceActor { get; }
-        public Models.VoiceActors.AnimeNode Anime { get; }
-        public Models.VoiceActors.VoiceActorNode Character { get; }
+        public Models.Staff.Staff VoiceActor { get; }
+        public Models.Staff.Node1 Anime { get; }
+        public Models.Staff.Node Character { get; }
 
-        public OriginItem(
+        public VAOriginItem(
             int id, 
-            Models.VoiceActors.VoiceActor voiceActor, 
-            Models.VoiceActors.AnimeNode anime, 
-            Models.VoiceActors.VoiceActorNode character)
+            Models.Staff.Staff voiceActor, 
+            Models.Staff.Node1 anime, 
+            Models.Staff.Node character)
         {
             Id = id;
             VoiceActor = voiceActor;

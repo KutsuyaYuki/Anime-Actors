@@ -20,21 +20,16 @@ namespace AnimeActors.Views
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
-    public partial class ItemsPage
+    public partial class VoiceActorItemsPage
     {
-        ItemsViewModel viewModel;
+        VoiceActorItemsViewModel viewModel;
 
-        public ItemsPage()
+        public VoiceActorItemsPage()
         {
             InitializeComponent();
 
-            BindingContext = viewModel = new ItemsViewModel();
+            BindingContext = viewModel = new VoiceActorItemsViewModel();
             this.WhenActivated(disposed => {
-                viewModel
-                    .WhenPropertyChanged(c => c.itemToScrollTo)
-                    .Where(c => c != null)
-                    .Subscribe(c => Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() => ItemsListView?.ScrollTo(c.Value, ScrollToPosition.Start)))
-                    .DisposeWith(disposed);
             });
             
         }

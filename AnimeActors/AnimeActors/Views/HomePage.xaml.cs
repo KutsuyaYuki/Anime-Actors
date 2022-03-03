@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AnimeActors.ViewModels;
+using ReactiveUI;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -11,7 +12,7 @@ using Xamarin.Forms.Xaml;
 namespace AnimeActors.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class HomePage
+    public partial class HomePage : IActivatableView
     {
         HomePageModel viewModel;
 
@@ -20,6 +21,11 @@ namespace AnimeActors.Views
             InitializeComponent();
 
             BindingContext = viewModel = new HomePageModel();
+
+            this.WhenActivated(disposables =>
+            {
+
+            });
         }
 
         private async void OnCharacterButtonClicked(object sender, EventArgs e)
