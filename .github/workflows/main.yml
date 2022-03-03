@@ -33,3 +33,10 @@ jobs:
         KEYSTORE_KEYALIAS: ${{ secrets.KEYSTORE_KEYALIAS }}
         KEYSTORE_KEYPASS: ${{ secrets.KEYSTORE_KEYPASS }}
       run: msbuild "AnimeActors.sln" /t:AnimeActors_Android:SignAndroidPackage /p:Configuration=Release;AndroidKeyStore=True;AndroidSigningKeyStore=Yuki.keystore;AndroidSigningStorePass=$KEYSTORE_KEYALIAS;AndroidSigningKeyAlias=$KEYSTORE_KEYALIAS;AndroidSigningKeyPass=$KEYSTORE_KEYPASS 
+
+
+    - name: archive
+    - uses: actions/upload-artifact@v3
+      with:
+        name: apk
+        path: AnimeActors/AnimeActors.Android/bin/Release/*.apk 
