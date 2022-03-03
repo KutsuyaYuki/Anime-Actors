@@ -13,7 +13,7 @@ namespace AnimeActors.Views
     [DesignTimeVisible(false)]
     public partial class ItemDetailPage
     {
-        ItemDetailViewModel viewModel;
+        //ItemDetailViewModel viewModel;
 
         public ItemDetailPage(ItemDetailViewModel viewModel)
         {

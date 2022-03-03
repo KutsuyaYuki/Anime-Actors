@@ -7,17 +7,16 @@ using AnimeActors.Models;
 using GraphQL.Client.Http;
 using Newtonsoft.Json.Linq;
 using System.Linq;
-using RestSharp;
-using RestSharp.Serialization.Json;
 using Xamarin.Essentials;
 using GraphQL;
+using GraphQL.Client.Serializer.Newtonsoft;
 
 namespace AnimeActors.Services
 {
     class AnilistService
     {
         //private RestClient _client = new RestClient();
-        private GraphQLHttpClient _graphqlClient = new GraphQLHttpClient($"https://graphql.anilist.co");
+        private GraphQLHttpClient _graphqlClient = new GraphQLHttpClient($"https://graphql.anilist.co", new NewtonsoftJsonSerializer());
 
         public AnilistService()
         {

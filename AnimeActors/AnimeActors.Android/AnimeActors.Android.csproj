@@ -56,7 +56,9 @@
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidLinkTool>r8</AndroidLinkTool>
     <MandroidI18n />
-    <AndroidSupportedAbis>armeabi-v7a;arm64-v8a</AndroidSupportedAbis>
+    <AndroidSupportedAbis>
+    </AndroidSupportedAbis>
+    <AndroidKeyStore>false</AndroidKeyStore>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -72,13 +74,10 @@
       <Version>4.2.10.200624163</Version>
     </PackageReference>
     <PackageReference Include="GraphQL.Client">
-      <Version>2.1.2</Version>
+      <Version>4.0.2</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.XamForms">
-      <Version>13.2.18</Version>
-    </PackageReference>
-    <PackageReference Include="RestSharp">
-      <Version>106.11.7</Version>
+      <Version>17.1.50</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.FFImageLoading">
       <Version>2.4.11.982</Version>
@@ -97,7 +96,7 @@
     </PackageReference>
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2337" />
     <PackageReference Include="Xamarin.Android.Support.Core.Utils" Version="28.0.0.3" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
