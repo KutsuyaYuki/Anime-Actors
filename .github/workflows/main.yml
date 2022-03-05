@@ -40,3 +40,12 @@ jobs:
       with:
         name: apk
         path: AnimeActors/AnimeActors.Android/bin/Release/*.apk 
+        
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          AnimeActors/AnimeActors.Android/bin/Release/*.apk
